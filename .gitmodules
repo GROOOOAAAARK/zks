@@ -1,0 +1,6 @@
+[submodule "contracts/layer1_receiver/lib/forge-std"]
+	path = contracts/layer1_receiver/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "contracts/layer1_receiver/lib/openzeppelin-contracts"]
+	path = contracts/layer1_receiver/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
