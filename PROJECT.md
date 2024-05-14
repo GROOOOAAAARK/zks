@@ -3,6 +3,8 @@
 ## Description
 
 Zero Knowledge Solvency (ZKS) is a project created for the Circuit Breaker Hackathon 2024. It is a tool to verify the solvency of an address or list of addresses, using Noir as a backend to generate the proofs and a smart contract to verify them.
+Currently, it only supports the basic balance of an address, but it is designed to be easily extensible to support multiple tokens and multiple accounts.
+
 
 ## Upgrades imagined
 
