@@ -10,15 +10,10 @@ git clone
 yarn install
 ```
 
+## Proof Generation
 
-## Build rust to wasm
+TODO: docs
 
-```bash
-docker build -t debian .
-```
+## Proof Verification
 
-Then run the container:
-
-```bash
-docker run -v "$PWD/lib/circuit_utils":/home -it rust_packed_debian /bin/bash
-```
+TODO: docs
