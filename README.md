@@ -10,6 +10,20 @@ git clone
 yarn install
 ```
 
+## Usage
+
+Set env vars for the smart contract usage:
+
+```bash
+export VERIFIER_ADDRESS=0x1234
+```
+
+Then run the web app:
+
+```bash
+yarn dev
+```
+
 ## Proof Generation
 
 TODO: docs
