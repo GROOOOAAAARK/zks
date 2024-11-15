@@ -36,6 +36,6 @@ body {
   text-shadow: 0 0 10px currentColor;
 }
 
-body {
+/* body {
   @apply bg-gray-900 text-gray-100;
-}
+} */
