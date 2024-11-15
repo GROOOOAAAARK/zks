@@ -1,7 +1,7 @@
 import { toast } from 'react-toastify';
 import { useEffect, useState } from 'react';
 import { ProofData } from '@noir-lang/backend_barretenberg';
-import { NoirBackend } from '@/src/utils/noir-backend';
+import { NoirBackend } from '@/utils/noir-backend';
 
 export function useProofGeneration(inputs?: { [key: string]: any }) {
     const [proofData, setProofData] = useState<ProofData | undefined>();
