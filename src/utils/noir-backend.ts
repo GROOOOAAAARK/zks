@@ -1,7 +1,7 @@
 import { BarretenbergBackend, ProofData } from '@noir-lang/backend_barretenberg';
 import { CompiledCircuit } from '@noir-lang/types';
 import { Noir } from '@noir-lang/noir_js';
-import zksCircuit from '@circuits/zks/target/zero_knowledge_solvency.json';
+import zksCircuit from '@Circuits/zks/target/zero_knowledge_solvency.json';
 
 export class NoirBackend {
     private circuitName: string;
