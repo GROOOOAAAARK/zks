@@ -1,5 +1,5 @@
-use dep::std;
-use dep::ecrecover;
+mod pub_key;
+use pub_key::{PubKey};
 
 fn main(
     field_message: [u8; 32],
@@ -8,21 +8,14 @@ fn main(
     field_total_balance: Field,
     field_solvency: pub Field
 ) {
-    let message = field_message;
-    let signature = field_signature;
-    let pub_key = field_pub_key;
     let total_balance = field_total_balance as i64;
     let solvency = field_solvency as i64;
 
-    verify_signature(message, signature, pub_key);
-
     verify_solvency(total_balance, solvency);
-}
 
-fn verify_signature(message: [u8; 32], signature: [u8; 64], pub_key: [u8; 64]) {
-    let key = ecrecover::secp256k1::PubKey::from_unified(pub_key);
+    let pub_key = PubKey::from_flattened(field_pub_key);
 
-    assert(key.verify_sig(signature, message));
+    assert(pub_key.verify_signature(field_signature, field_message));
 }
 
 fn verify_solvency(balance: i64, solvency: i64) {
