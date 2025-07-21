@@ -1,44 +1,51 @@
-import { BarretenbergBackend, ProofData } from '@noir-lang/backend_barretenberg';
-import { CompiledCircuit } from '@noir-lang/types';
+import { UltraHonkBackend, ProofData } from "@aztec/bb.js";
 import { Noir } from '@noir-lang/noir_js';
 import zksCircuit from '@Circuits/zks/target/zero_knowledge_solvency.json';
 
 export class NoirBackend {
     private circuitName: string;
-    private circuit?: CompiledCircuit;
-    private backend?: BarretenbergBackend;
-    private backendOptions: any;
+    private backend?: UltraHonkBackend;
     private noir?: Noir;
 
-    constructor(circuitName: string, backendOptions?: any) {
+    constructor(circuitName: string) {
         this.circuitName = circuitName;
-        this.backendOptions = backendOptions;
-            // ? backendOptions
-            // : { threads: navigator.hardwareConcurrency };
     }
 
     async init(): Promise<void> {
         console.log('Initializing NoirBackend ', this.circuitName);
 
-        this.circuit = zksCircuit as CompiledCircuit;
-        this.backend = new BarretenbergBackend(
-            this.circuit,
-            this.backendOptions,
-        );
-        debugger;
-        this.noir = new Noir(this.circuit, this.backend);
+        const noir = new Noir(zksCircuit as any);
+        const honk = new UltraHonkBackend((zksCircuit as any).bytecode, {
+            threads: 8, // This will only work if SharedArrayBuffer is enabled (see nexdt.config.mjs)
+        });
+
+        this.backend = honk;
+        this.noir = noir;
     }
 
     name = () => this.circuitName;
 
     getNoir = () => this.noir;
 
-    generateProof = (inputs: { [key: string]: any }): Promise<ProofData> => {
-        debugger;
-        return this.noir!.generateProof(inputs);
+    generateWitness = async (inputs: { [key: string]: any }): Promise<{ witness: Uint8Array; returnValue: any }> => {
+        const formattedInputs = {
+            ...inputs,
+            field_message: Array.from(inputs.field_message) as number[],
+            field_signature: Array.from(inputs.field_signature) as number[],
+            field_pub_key: Array.from(inputs.field_pub_key) as number[],
+        };
+
+        return this.noir!.execute(formattedInputs);
     };
 
-    verifyOffChain = () => {};
+    generateProof = async (witness: Uint8Array): Promise<ProofData> => {
+        return this.backend!.generateProof(witness);
+    };
 
+    verifyOffChain = (proofData: Uint8Array, publicInputs: string[]) => {
+        return this.backend!.verifyProof({proof: proofData, publicInputs: publicInputs});
+    };
+
+    // TODO: implement
     verifyOnChain = () => {};
 }
