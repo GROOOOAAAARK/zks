@@ -16,7 +16,7 @@ export class NoirBackend {
 
         const noir = new Noir(zksCircuit as any);
         const honk = new UltraHonkBackend((zksCircuit as any).bytecode, {
-            threads: 8, // This will only work if SharedArrayBuffer is enabled (see nexdt.config.mjs)
+            threads: 8, // This will only work if SharedArrayBuffer is enabled (see next.config.mjs)
         });
 
         this.backend = honk;
