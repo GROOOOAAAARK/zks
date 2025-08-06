@@ -1,5 +1,5 @@
-use dep::std::hash::keccak256;
 use dep::std::ecdsa_secp256k1::verify_signature;
+use dep::std::hash::keccak256;
 
 global KEY_PART_LENGTH: u32 = 32;
 global KEY_LENGTH: u32 = KEY_PART_LENGTH * 2;
@@ -8,7 +8,7 @@ global MESSAGE_LENGTH: u32 = 32;
 
 pub struct PubKey {
     x: [u8; KEY_PART_LENGTH],
-    y: [u8; KEY_PART_LENGTH]
+    y: [u8; KEY_PART_LENGTH],
 }
 
 impl PubKey {
@@ -49,7 +49,11 @@ impl PubKey {
         flat
     }
 
-    pub fn verify_signature(self, signature: [u8; KEY_LENGTH], message: [u8; MESSAGE_LENGTH]) -> bool {
+    pub fn verify_flatten_signature(
+        self,
+        signature: [u8; KEY_LENGTH],
+        message: [u8; MESSAGE_LENGTH],
+    ) -> bool {
         verify_signature(self.x, self.y, signature, message)
     }
 }
