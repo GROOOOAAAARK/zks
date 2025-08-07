@@ -1,5 +1,5 @@
 mod pub_key;
-use pub_key::{PubKey};
+use pub_key::PubKey;
 
 fn main(
     field_message: [u8; 32],
