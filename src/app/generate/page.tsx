@@ -2,11 +2,11 @@
 
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
-import { BrowserProvider, formatEther, hexlify, keccak256, SigningKey, toBeArray } from 'ethers';
-import { useAccount } from 'wagmi'
+import { useAccount, useConfig } from 'wagmi';
+import { createPublicClient, createWalletClient,  custom, formatEther, recoverPublicKey, keccak256, toBytes } from 'viem'
+import { mainnet, sepolia } from 'viem/chains'
 
 import { useProofGeneration } from '@/hooks/useProofGeneration';
-import { stringToUints8 } from '@/utils/conversions';
 
 export default function GenerateProofPage() {
     // const [address, setAddress] = useState('');
@@ -15,10 +15,10 @@ export default function GenerateProofPage() {
 
     const address = useAccount().address;
     const [formData, setFormData] = useState({
-        address: '',
+        address: address,
         solvencyLevel: '',
         token: 'Ether (Ethereum Mainnet)', //TODO: defaults to wallet network's default token
-    })
+    });
 
     const inputUpdate = async(inputs: { [key: string]: any }) => {
         setInputs(inputs);
@@ -35,93 +35,124 @@ export default function GenerateProofPage() {
         setFormData({ ...formData, [e.target.name]: e.target.value })
     }
 
-    const generateRawMessage = (balance: string): string => {
+    const generateRawMessage = (balance: number | bigint | string): string => {
 
         const localTs: number = Date.now();
 
         var rawMessage = 'You need to connect and use the address with the balance you\'re trying to prove';
-        rawMessage += '\nThe day is ' + localTs as unknown as string;
+        rawMessage += '\nThe day is ' + +localTs.toString();
         rawMessage += '\n balance at this time: ' + balance;
 
         return rawMessage;
 
     };
 
-    const handleFormSubmit = async (event: React.FormEvent) => { //TODO: integrate wagmi here
+    const handleFormSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
 
+        const confirmedAddress = formData.address!;
+
+        // Request account access first
         try {
-            const confirmedAddress = address!;
-            // Check if MetaMask is installed
-            if (typeof window.ethereum === 'undefined') {
-                throw new Error('MetaMask is not installed');
+            await window.ethereum!.request({
+                method: 'eth_requestAccounts'
+            });
+
+            const publicClient = createPublicClient({
+                chain: sepolia,
+                transport: custom(window.ethereum!),
+            });
+
+            const walletClient = createWalletClient({
+                chain: sepolia,
+                transport: custom(window.ethereum!),
+                account: confirmedAddress,
+            });
+
+            const balance = await publicClient.getBalance({
+                address: confirmedAddress,
+            });
+
+            const balanceInWei = BigInt(balance);
+            const formattedBalance = formatEther(balance);
+            const balanceInGWeiForMessage = balanceInWei / BigInt(1000000000);
+
+            // Generate message
+            const rawMessage = generateRawMessage(`${balanceInGWeiForMessage} GWei`);
+
+            // Sign the message - this will automatically add Ethereum prefix and hash it
+            const signature = await walletClient.signMessage({
+                account: confirmedAddress,
+                message: rawMessage,
+            });
+
+            // Create the Ethereum message hash that was actually signed
+            // This follows EIP-191 standard: keccak256("\x19Ethereum Signed Message:\n" + message.length + message)
+            const prefix = `\x19Ethereum Signed Message:\n${rawMessage.length}`;
+            const fullMessage = prefix + rawMessage;
+            const messageHash = keccak256(toBytes(fullMessage));
+
+            // Get the message hash bytes (should be exactly 32 bytes)
+            const hashBytes = toBytes(messageHash);
+            if (hashBytes.length !== 32) {
+                throw new Error(`Message hash must be 32 bytes, got ${hashBytes.length}`);
             }
 
-            // Request user's permission to access their accounts
-            await window.ethereum.enable();
+            // Get signature components (should be exactly 65 bytes: r + s + v)
+            const rawSignature = toBytes(signature);
+            if (rawSignature.length !== 65) {
+                throw new Error(`Signature must be 65 bytes, got ${rawSignature.length}`);
+            }
 
-            console.log('MetaMask is installed and enabled');
+            // Recover public key using the Ethereum message hash (for verification)
+            const publicKey = await recoverPublicKey({
+                hash: messageHash,
+                signature: signature
+            });
 
-            // Create a new instance of Web3 using the injected provider from MetaMask
-            const web3Provider = new BrowserProvider(window.ethereum);
-            const signer = await web3Provider.getSigner();
+            // Get public key bytes (should be exactly 65 bytes: prefix + x + y)
+            const rawPubKey = toBytes(publicKey);
+            if (rawPubKey.length !== 65 || rawPubKey[0] !== 4) {
+                throw new Error(`Public key must be 65 bytes with 0x04 prefix, got ${rawPubKey.length} bytes with prefix ${rawPubKey[0]}`);
+            }
 
-            console.log('Web3 provider and signer created');
+            // Prepare circuit inputs - use direct array conversion to avoid copying issues
+            const messageBytes = Array.from(hashBytes);
+            const signatureBytes = Array.from(rawSignature.slice(0, 64)); // r + s only
+            const pubKeyBytes = Array.from(rawPubKey.slice(1, 65)); // x + y only
 
-            // Obtain the user's balance
-            const balance = formatEther(await web3Provider.getBalance(confirmedAddress));
+            // Convert balance from Wei to GWei for better i64 range compatibility
+            // 1 ETH = 1e18 Wei = 1e9 GWei
+            const balanceInGWei = balanceInWei / BigInt(1000000000); // Convert Wei to GWei (divide by 1e9)
 
-            console.log('Balance:', balance);
+            // Solvency level should also be in GWei units (user input assumed to be in GWei)
+            const solvencyInGWei = BigInt(formData.solvencyLevel);
 
-            // Generate a random message to be signed
-            const rawMessage = generateRawMessage(balance);
-
-            // const hashedMessage = keccak256(stringToUints8(rawMessage));
-
-            const bytesMessage = stringToUints8(rawMessage).subarray(0, 32); //TODO: lost of data here, find another way
-            console.log(`\n\n\nARRAY OF LENGTH: ${bytesMessage.length}\n\n`);
-
-            // console.log('Raw message:', rawMessage);
-            // // console.log('Size bytes message:', bytesMessage.byteLength);
-
-            // Ask the user to sign the message using MetaMask
-            const signature = await signer.signMessage(bytesMessage);
-            // const signature = await signer.signMessage(rawMessage);
-
-            console.log('Signature:', signature);
-            // const bytesSignature = stringToUints8(signature).subarray(0, 32);
-            // console.log('Size signature:', bytesSignature.byteLength);
-
-            // Get the public key
-            // const pubKey = SigningKey.recoverPublicKey(bytesMessage, signature); //TODO: digest should only be 32 bytes long, message may be too long or malformed
-            const pubKey = SigningKey.recoverPublicKey(rawMessage, signature);
-
-            console.log('Pub key:', pubKey);
-            // console.log('Size pub key:', stringToUints8(pubKey).byteLength);
-
-            // Sets inputs right before generating the proof
+            // Validate and convert to i64-compatible strings
+            const balanceI64String = balanceInGWei.toString();
+            const solvencyI64String = solvencyInGWei.toString();
 
             const inputs = {
-                field_message: rawMessage,
-                field_signature: signature,
-                field_pub_key: pubKey,
-                filed_total_balance: balance,
-                field_solvency: formData.solvencyLevel,
-                // field_message: bytesMessage,
-                // field_signature: bytesSignature,
-                // field_pub_key: stringToUints8(pubKey).subarray(0, 32),
-                // filed_total_balance: balance,
-                // field_solvency: formData.solvencyLevel,
+                field_message: messageBytes,
+                field_signature: signatureBytes,
+                field_pub_key: pubKeyBytes,
+                field_total_balance: balanceI64String,
+                field_solvency: solvencyI64String,
             };
 
-            console.log('Inputs ready for zk circuit:', JSON.stringify(inputs));
-
-            // Calls the circuit to generate proof and display it to the user
-
-            inputUpdate(inputs);
-
+            console.log('Debug info:');
+            console.log('Original message:', rawMessage);
+            console.log('Message with prefix:', fullMessage);
+            console.log('Message hash (hex):', messageHash);
+            console.log('Message hash bytes for circuit:', messageBytes);
+            console.log('Signature (hex):', signature);
+            console.log('Signature bytes for circuit (first 8):', signatureBytes.slice(0, 8));
+            console.log('Public key (hex):', publicKey);
+            console.log('Public key bytes for circuit (first 8):', pubKeyBytes.slice(0, 8));
+            console.log('Inputs ready for zk circuit:', inputs);
+            setInputs(inputs);
         } catch (error) {
-            console.error('Connection x Signing error:', error);
+            console.error('Error connecting to wallet:', error);
         }
     };
 
@@ -152,7 +183,7 @@ export default function GenerateProofPage() {
                 </div>
                 <div>
                 <label htmlFor="solvencyLevel" className="block text-sm font-medium text-green-400">
-                    Solvency Level
+                    Solvency Level (GWei)
                 </label>
                 <input
                     type="number"
@@ -160,7 +191,8 @@ export default function GenerateProofPage() {
                     name="solvencyLevel"
                     value={formData.solvencyLevel}
                     onChange={handleChange}
-                    className="mt-1 block w-full border border-gray-600 rounded-md shadow-sm py-2 px-3 bg-gray-700 text-green-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    className="mt-1 block w-full border border-gray-600 rounded-md shadow-sm py-2 px-3 bg-gray-700 text-green-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 remove-arrow"
+                    inputMode="numeric"
                     required
                 />
                 </div>
@@ -189,31 +221,4 @@ export default function GenerateProofPage() {
         </main>
     </div>
     );
-    //     <div>
-    //         <h1>Input Address and Solvency Amount</h1>
-    //         <form onSubmit={handleFormSubmit}>
-    //             <div>
-    //                 <label htmlFor="address">Address:</label>
-    //                 <input
-    //                     style={{color: 'black'}}
-    //                     type="text"
-    //                     id="address"
-    //                     value={address}
-    //                     onChange={(event) => setAddress(event.target.value)}
-    //                 />
-    //             </div>
-    //             <div>
-    //                 <label htmlFor="solvencyAmount">Solvency Amount:</label>
-    //                 <input
-    //                     style={{color: 'black'}}
-    //                     type="text"
-    //                     id="solvencyAmount"
-    //                     value={solvencyAmount}
-    //                     onChange={(event) => setSolvencyAmount(event.target.value)}
-    //                 />
-    //             </div>
-    //             <button type="submit">Submit</button>
-    //         </form>
-    //     </div>
-    // );
 };
