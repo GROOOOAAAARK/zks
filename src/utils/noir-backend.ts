@@ -11,7 +11,7 @@ export class NoirBackend {
         this.circuitName = circuitName;
     }
 
-    async init(): Promise<void> {
+    init(): void {
         console.log('Initializing NoirBackend ', this.circuitName);
 
         const noir = new Noir(zksCircuit as any);
@@ -27,15 +27,8 @@ export class NoirBackend {
 
     getNoir = () => this.noir;
 
-    generateWitness = async (inputs: { [key: string]: any }): Promise<{ witness: Uint8Array; returnValue: any }> => {
-        const formattedInputs = {
-            ...inputs,
-            field_message: Array.from(inputs.field_message) as number[],
-            field_signature: Array.from(inputs.field_signature) as number[],
-            field_pub_key: Array.from(inputs.field_pub_key) as number[],
-        };
-
-        return this.noir!.execute(formattedInputs);
+    generateWitness = async (inputs): Promise<{ witness: Uint8Array; returnValue: any }> => {
+        return this.noir!.execute(inputs);
     };
 
     generateProof = async (witness: Uint8Array): Promise<ProofData> => {
