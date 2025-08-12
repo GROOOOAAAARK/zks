@@ -117,9 +117,9 @@ export default function GenerateProofPage() {
             }
 
             // Prepare circuit inputs - use direct array conversion to avoid copying issues
-            const messageBytes = Array.from(hashBytes);
-            const signatureBytes = Array.from(rawSignature.slice(0, 64)); // r + s only
-            const pubKeyBytes = Array.from(rawPubKey.slice(1, 65)); // x + y only
+            const messageBytes = Array.from(hashBytes).map(byte => byte.toString());
+            const signatureBytes = Array.from(rawSignature.slice(0, 64)).map(byte => byte.toString()); // r + s only
+            const pubKeyBytes = Array.from(rawPubKey.slice(1, 65)).map(byte => byte.toString()); // x + y only
 
             // Convert balance from Wei to GWei for better i64 range compatibility
             // 1 ETH = 1e18 Wei = 1e9 GWei
