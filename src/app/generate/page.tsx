@@ -55,13 +55,22 @@ export default function GenerateProofPage() {
                 method: 'eth_requestAccounts'
             });
 
+            if (!process.env.NEXT_PUBLIC_DEBUG || process.env.NEXT_PUBLIC_DEBUG !== "1") {
+                await window.ethereum!.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: '0x1' }], // Chain ID for Ethereum Mainnet
+                });
+            }
+
+            const forcedChain = process.env.NEXT_PUBLIC_DEBUG == "1" ? sepolia : mainnet;
+
             const publicClient = createPublicClient({
-                chain: sepolia,
+                chain: forcedChain,
                 transport: custom(window.ethereum!),
             });
 
             const walletClient = createWalletClient({
-                chain: sepolia,
+                chain: forcedChain,
                 transport: custom(window.ethereum!),
                 account: confirmedAddress,
             });
