@@ -9,9 +9,10 @@ import { mainnet, sepolia } from 'viem/chains'
 import { useProofGeneration } from '@/hooks/useProofGeneration';
 
 export default function GenerateProofPage() {
-    // const [address, setAddress] = useState('');
     const [inputs, setInputs] = useState<{ [key: string]: any }>();
-    const [proofData, setProofData] = useState<{ [key: string]: any }>();
+
+    const { proofData, isGenerating } = useProofGeneration(inputs);
+    const config = useConfig();
 
     const address = useAccount().address;
     const [formData, setFormData] = useState({
@@ -19,11 +20,6 @@ export default function GenerateProofPage() {
         solvencyLevel: '',
         token: 'Ether (Ethereum Mainnet)', //TODO: defaults to wallet network's default token
     });
-
-    const inputUpdate = async(inputs: { [key: string]: any }) => {
-        setInputs(inputs);
-        setProofData(useProofGeneration(inputs));
-    };
 
     useEffect(() => {
         if (address) {
@@ -212,10 +208,11 @@ export default function GenerateProofPage() {
                 </select>
                 </div>
                 <button
-                type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-gray-900 bg-green-400 hover:bg-green-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
-                >
-                    Generate Proof
+                    type="submit"
+                    disabled={isGenerating}
+                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-gray-900 bg-green-400 hover:bg-green-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                    {isGenerating ? 'Generating Proof...' : 'Generate Proof'}
                 </button>
             </form>
         </main>
