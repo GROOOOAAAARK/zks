@@ -27,7 +27,7 @@ export class NoirBackend {
 
     getNoir = () => this.noir;
 
-    generateWitness = async (inputs): Promise<{ witness: Uint8Array; returnValue: any }> => {
+    generateWitness = async (inputs: any): Promise<{ witness: Uint8Array; returnValue: any }> => {
         return this.noir!.execute(inputs);
     };
 
@@ -35,8 +35,8 @@ export class NoirBackend {
         return this.backend!.generateProof(witness);
     };
 
-    verifyOffChain = (proofData: Uint8Array, publicInputs: string[]) => {
-        return this.backend!.verifyProof({proof: proofData, publicInputs: publicInputs});
+    verifyOffChain = (proofData: ProofData) => {
+        return this.backend!.verifyProof(proofData);
     };
 
     // TODO: implement
