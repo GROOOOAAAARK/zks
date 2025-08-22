@@ -52,7 +52,6 @@ export function useProofGeneration(inputs: any) {
 
         try {
             validateInputs(inputs);
-            console.log('Inputs validated for proof generation');
 
         } catch (error) {
             console.error('Input validation failed:', error);
@@ -62,17 +61,14 @@ export function useProofGeneration(inputs: any) {
         }
 
         try {
-            console.log("inputs", inputs);
             const { witness, returnValue } = await zkBackend!.generateWitness(inputs);
 
             const proof = await zkBackend!.generateProof(witness);
-            console.log("\n\n======proof======\n\n", proof);
 
             // Store the proof data
             setProofData(proof);
 
             const verificationResult = await zkBackend!.verifyOffChain(proof);
-            console.log("\n\n======verificationResult======\n\n", verificationResult);
 
             toast.success('Proof generated successfully!');
         } catch (error) {

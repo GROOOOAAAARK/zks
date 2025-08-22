@@ -71,7 +71,6 @@ export default function GenerateProofPage() {
             });
 
             const balanceInWei = BigInt(balance);
-            const formattedBalance = formatEther(balance);
             const balanceInGWeiForMessage = balanceInWei / BigInt(1000000000);
 
             // Generate message
@@ -137,16 +136,6 @@ export default function GenerateProofPage() {
                 field_solvency: solvencyI64String,
             };
 
-            console.log('Debug info:');
-            console.log('Original message:', rawMessage);
-            console.log('Message with prefix:', fullMessage);
-            console.log('Message hash (hex):', messageHash);
-            console.log('Message hash bytes for circuit:', messageBytes);
-            console.log('Signature (hex):', signature);
-            console.log('Signature bytes for circuit (first 8):', signatureBytes.slice(0, 8));
-            console.log('Public key (hex):', publicKey);
-            console.log('Public key bytes for circuit (first 8):', pubKeyBytes.slice(0, 8));
-            console.log('Inputs ready for zk circuit:', inputs);
             setInputs(inputs);
         } catch (error) {
             console.error('Error connecting to wallet:', error);
