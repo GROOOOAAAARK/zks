@@ -7,6 +7,7 @@ import { createPublicClient, createWalletClient,  custom, formatEther, recoverPu
 import { mainnet, sepolia } from 'viem/chains'
 
 import { useProofGeneration } from '@/hooks/useProofGeneration';
+import ProofDownload from '@/components/ProofDownload';
 
 export default function GenerateProofPage() {
     const [inputs, setInputs] = useState<{ [key: string]: any }>();
@@ -215,6 +216,16 @@ export default function GenerateProofPage() {
                     {isGenerating ? 'Generating Proof...' : 'Generate Proof'}
                 </button>
             </form>
+
+            {/* Show ProofDownload component when proof is ready */}
+            {proofData && (
+                <div className="mt-8">
+                    <ProofDownload
+                        proofData={proofData.proof}
+                        className="w-full max-w-md mx-auto"
+                    />
+                </div>
+            )}
         </main>
     </div>
     );
