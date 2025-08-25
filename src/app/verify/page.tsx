@@ -150,7 +150,6 @@ export default function ZeroKnowledgeProofPage() {
                             placeholder="Decimal or 0x-hex"
                             className="mt-1 block w-full border border-gray-600 rounded-md shadow-sm py-2 px-3 bg-gray-700 text-green-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                         />
-                        <p className="mt-2 text-xs text-gray-400">Will be transformed to a hex string (0x...)</p>
                     </div>
                     <button
                         type="submit"
