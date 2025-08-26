@@ -4,30 +4,50 @@ In order to use, must have rust and noir installed, as well as yarn and node to 
 
 ## Installation
 
-```bash
-git clone
+### Requirements
 
-yarn install
+- [ ] Deno (ideally)
+- [ ] Node (for the web app)
+- [ ] Pre-commit
+
+### Workflow
+
+```bash
+git clone <repo_url>
+
+deno install
 ```
 
 ## Usage
 
-Set env vars for the smart contract usage:
+Set env vars for the web app:
 
 ```bash
-export VERIFIER_ADDRESS=0x1234
+export NEXT_PUBLIC_DEBUG=1 # Allows debug only accessible features like no network forcing
 ```
 
 Then run the web app:
 
 ```bash
-yarn dev
+deno run dev
 ```
 
 ## Proof Generation
 
-TODO: docs
+Zero knowledge proof generation is done in the `useProofGeneration` hook.
 
-## Proof Verification
+You will need to have a wallet connected to the web app to generate a proof, choose an address and a solvency level to prove.
 
-TODO: docs
+Form submission will trigger the proof generation, and you will be able to download the proof as a `binary` file.
+
+## Offline Proof Verification
+
+Zero knowledge proof verification is done in the `useProofVerification` hook.
+
+You will need to select a binary file containing the proof as well as the solvency level you'd like to verify.
+
+Form submission will trigger the proof verification, and you will be able to see the result of the verification.
+
+## Onchain Proof Verification
+
+**COMING SOON**
