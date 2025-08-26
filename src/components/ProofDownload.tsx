@@ -12,7 +12,7 @@ export default function ProofDownload({ proofData, className = '' }: ProofDownlo
         if (!proofData) return;
 
         // Convert Uint8Array to blob
-        const blob = new Blob([proofData], { type: 'application/octet-stream' });
+        const blob = new Blob([proofData as any], { type: 'application/octet-stream' });
 
         // Create download link
         const url = URL.createObjectURL(blob);
