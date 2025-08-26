@@ -110,24 +110,24 @@ export default function ZeroKnowledgeProofPage() {
                     Back to Home
                 </Link>
             </header>
-            <main className="w-full max-w-4xl bg-gray-800 shadow-lg shadow-green-400/20 rounded-lg p-8">
-                <h1 className="text-2xl font-bold text-green-400 mb-6 glow">Verify Proof</h1>
+            <main className="w-full max-w-4xl bg-gray-800 shadow-lg shadow-blue-400/20 rounded-lg p-8">
+                <h1 className="text-2xl font-bold text-blue-400 mb-6 glow">Verify Proof</h1>
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
-                        <label className="block text-sm font-medium text-green-400">Zero Knowledge Proof</label>
+                        <label className="block text-sm font-medium text-blue-400">Zero Knowledge Proof</label>
                         <div
                             onDragOver={handleDragOver}
                             onDragLeave={handleDragLeave}
                             onDrop={handleDrop}
-                            className={`mt-1 w-full border-2 ${isDragging ? 'border-green-400' : 'border-gray-600'} border-dashed rounded-md py-8 px-3 bg-gray-700 text-green-400 flex flex-col items-center justify-center cursor-pointer transition-colors`}
+                            className={`mt-1 w-full border-2 ${isDragging ? 'border-blue-400' : 'border-gray-600'} border-dashed rounded-md py-8 px-3 bg-gray-700 text-blue-400 flex flex-col items-center justify-center cursor-pointer transition-colors`}
                         >
                             {/* Icon changes when file is loaded */}
                             {!proofBytes ? (
-                                <svg className="w-12 h-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <svg className="w-12 h-12 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6H16a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                 </svg>
                             ) : (
-                                <svg className="w-12 h-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <svg className="w-12 h-12 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
                             )}
@@ -139,7 +139,7 @@ export default function ZeroKnowledgeProofPage() {
                         <p className="mt-2 text-xs text-gray-400">Drop the raw proof file you downloaded. Only raw binary is supported.</p>
                     </div>
                     <div>
-                        <label htmlFor="solvency" className="block text-sm font-medium text-green-400">
+                        <label htmlFor="solvency" className="block text-sm font-medium text-blue-400">
                             Solvency
                         </label>
                         <input
@@ -148,7 +148,7 @@ export default function ZeroKnowledgeProofPage() {
                             value={solvencyField}
                             onChange={(e) => setSolvencyField(e.target.value)}
                             placeholder="Decimal or 0x-hex"
-                            className="mt-1 block w-full border border-gray-600 rounded-md shadow-sm py-2 px-3 bg-gray-700 text-green-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            className="mt-1 block w-full border border-gray-600 rounded-md shadow-sm py-2 px-3 bg-gray-700 text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         />
                     </div>
                     <button
