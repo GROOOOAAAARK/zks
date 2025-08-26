@@ -3,7 +3,7 @@ import { useAccount, useEnsName } from "wagmi";
 export default function Profile() {
     const address = useAccount();
 
-    const { data, error, status } = useEnsName(address);
+    const { data, error, status } = useEnsName({ address: address.address });
 
     if (status === 'pending') {
         return <div>Loading ENS name...</div>;
