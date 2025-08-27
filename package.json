@@ -6,7 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "pre-commit": "pre-commit run src/",
+    "lint-staged": {
+      "src/**/*.{ts,tsx}": [
+        "prettier --write",
+        "eslint --fix"
+      ]
+    }
   },
   "dependencies": {
     "@aztec/bb.js": "0.63.1",
