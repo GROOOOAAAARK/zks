@@ -18,6 +18,37 @@ export default function ZeroKnowledgeProofPage() {
 
     const { verificationResult, isVerifying } = useProofVerification(verificationInputs);
 
+    const handleClick = () => {
+        // Create a hidden file input element dynamically and trigger it
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '*'; // Accept any file type, adjust if needed
+        input.style.display = 'none';
+
+        // When a file is selected, create a synthetic drop event and call handleDrop
+        input.onchange = async (event: Event) => {
+            const target = event.target as HTMLInputElement;
+            if (target.files && target.files.length > 0) {
+                // Create a DataTransfer object to mimic a drop event
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(target.files[0]);
+
+                // Create a synthetic drop event
+                const syntheticEvent = {
+                    preventDefault: () => {},
+                    dataTransfer,
+                } as unknown as React.DragEvent<HTMLDivElement>;
+
+                await handleDrop(syntheticEvent);
+            }
+            // Clean up
+            document.body.removeChild(input);
+        };
+
+        document.body.appendChild(input);
+        input.click();
+    };
+
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         setIsDragging(true);
@@ -119,6 +150,7 @@ export default function ZeroKnowledgeProofPage() {
                             onDragOver={handleDragOver}
                             onDragLeave={handleDragLeave}
                             onDrop={handleDrop}
+                            onClick={handleClick}
                             className={`mt-1 w-full border-2 ${isDragging ? 'border-blue-400' : 'border-gray-600'} border-dashed rounded-md py-8 px-3 bg-gray-700 text-blue-400 flex flex-col items-center justify-center cursor-pointer transition-colors`}
                         >
                             {/* Icon changes when file is loaded */}
