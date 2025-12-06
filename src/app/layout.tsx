@@ -33,10 +33,10 @@ export const metadata: Metadata = {
   manifest: "/site.webmanifest",
 };
 
-export default function RootLayout(props: { children: ReactNode }) {
-  const initialState = cookieToInitialState(
+export default async function RootLayout(props: { children: ReactNode }) {
+  const initialState = await cookieToInitialState(
     getConfig(),
-    headers().get('cookie'),
+    (await headers()).get('cookie'),
   )
   return (
     <html lang="en">
