@@ -10,11 +10,10 @@ import { Providers } from '@/components/Providers';
 
 const inter = Inter({ subsets: ["latin"] });
 
-//TODO: invalid viewport, need to fix
-// const viewPort: Viewport = {
-//   width: "device-width",
-//   initialScale: 1,
-// };
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
 
 export const metadata: Metadata = {
   title: "ZKS",
